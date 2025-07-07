@@ -2,26 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stock Price Checker</title>
   <link rel="stylesheet" href="/public/style.css" />
 </head>
 <body>
-  <h1>Stock Price Checker</h1>
-  <form id="stockForm">
-    <div>
-      <label for="stock1">Stock 1:</label>
-      <input type="text" id="stock1" name="stock" required />
-    </div>
-    <div>
-      <label for="stock2">Stock 2 (optional):</label>
-      <input type="text" id="stock2" name="stock" />
-    </div>
-    <div>
-      <label><input type="checkbox" id="like" /> I like this/these stock(s)</label>
-    </div>
-    <button type="submit">Submit</button>
-  </form>
-  <pre id="result"></pre>
+  <div class="container">
+    <h1>Stock Price Checker</h1>
+    <form id="stockForm">
+      <div>
+        <label for="stock">Stock:</label>
+        <input type="text" id="stock" name="stock" required />
+      </div>
+      <div>
+        <label for="stock2">Compare with (optional):</label>
+        <input type="text" id="stock2" name="stock2" />
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" id="like" name="like" />
+          I like this stock
+        </label>
+      </div>
+      <button type="submit">Get Price</button>
+    </form>
+    <div id="result"></div>
+  </div>
   <script src="/public/script.js"></script>
 </body>
 </html>

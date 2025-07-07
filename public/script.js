@@ -1,30 +1,32 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('stockForm');
-  const result = document.getElementById('result');
+document.getElementById('stockForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const stock = document.getElementById('stock').value;
+  const stock2 = document.getElementById('stock2').value;
+  const like = document.getElementById('like').checked;
+  const query = new URLSearchParams();
+  query.append('stock', stock);
+  if (stock2) query.append('stock', stock2);
+  if (like) query.append('like', 'true');
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  try {
+    const res = await fetch('/api/stock-prices?' + query.toString());
+    const data = await res.json();
 
-    const stock1 = document.getElementById('stock1').value.trim();
-    const stock2 = document.getElementById('stock2').value.trim();
-    const like = document.getElementById('like').checked;
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '';
 
-    if (!stock1) {
-      result.textContent = 'Please enter at least one stock symbol.';
-      return;
+    if (Array.isArray(data.stockData)) {
+      data.stockData.forEach(stock => {
+        const p = document.createElement('p');
+        p.textContent = `Stock: ${stock.stock}, Price: $${stock.price}, Relative Likes: ${stock.rel_likes}`;
+        resultDiv.appendChild(p);
+      });
+    } else {
+      const p = document.createElement('p');
+      p.textContent = `Stock: ${data.stockData.stock}, Price: $${data.stockData.price}, Likes: ${data.stockData.likes}`;
+      resultDiv.appendChild(p);
     }
-
-    let url = `/api/stock-prices?stock=${encodeURIComponent(stock1)}`;
-    if (stock2) url += `&stock=${encodeURIComponent(stock2)}`;
-    if (like) url += `&like=true`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      result.textContent = JSON.stringify(data, null, 2);
-    } catch (err) {
-      result.textContent = 'Error fetching stock data.';
-      console.error(err);
-    }
-  });
+  } catch (err) {
+    console.error(err);
+  }
 });

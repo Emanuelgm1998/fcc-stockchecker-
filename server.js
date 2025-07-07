@@ -1,90 +1,70 @@
+'use strict';
+require('dotenv').config();
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
-const fetch = require('node-fetch');
-const path = require('path');
+
+const apiRoutes = require('./routes/api.js');
+const fccTestingRoutes = require('./routes/fcctesting.js');
+const runner = require('./test-runner');
 
 const app = express();
 
-// ✅ Content Security Policy estricto (solo 'self')
-app.use(helmet({
-  contentSecurityPolicy: {
+// ✅ Helmet con CSP estricta
+app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'"]
+      styleSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'"],
+      objectSrc: ["'none'"]
     }
-  }
-}));
+  })
+);
 
-app.use(cors());
-app.use('/public', express.static(path.join(__dirname, 'public')));
-app.set('trust proxy', true); // Para detectar IP real
+// ✅ Archivos estáticos
+app.use('/public', express.static(process.cwd() + '/public'));
+
+// ✅ CORS para FCC
+app.use(cors({ origin: '*' }));
+
+// ✅ Body parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // ✅ Página principal
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+app.route('/').get(function (req, res) {
+  res.sendFile(process.cwd() + '/views/index.html');
 });
 
-// ✅ Likes almacenados por IP en memoria
-const likesDB = {};
+// ✅ Rutas FCC y API
+fccTestingRoutes(app);
+apiRoutes(app);
 
-// ✅ Obtener precio de acción desde API de FCC
-async function fetchStock(stock) {
-  const url = `https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('API error');
-  const data = await res.json();
-  return data;
-}
+// ✅ 404
+app.use(function (req, res, next) {
+  res.status(404).type('text').send('Not Found');
+});
 
-// ✅ API de precios
-app.get('/api/stock-prices', async (req, res) => {
-  try {
-    let stocks = req.query.stock;
-    const like = req.query.like === 'true';
-    const ip = req.ip;
-
-    if (!stocks) return res.json({ error: 'No stock provided' });
-
-    if (!Array.isArray(stocks)) stocks = [stocks];
-    stocks = stocks.map(s => s.toUpperCase());
-
-    if (like) {
-      stocks.forEach(s => {
-        if (!likesDB[s]) likesDB[s] = new Set();
-        likesDB[s].add(ip);
-      });
-    }
-
-    const results = await Promise.all(stocks.map(async (stock) => {
-      const data = await fetchStock(stock);
-      return {
-        stock,
-        price: data.latestPrice?.toString() || '0',
-        likes: likesDB[stock] ? likesDB[stock].size : 0
-      };
-    }));
-
-    if (results.length === 2) {
-      const [a, b] = results;
-      res.json({
-        stockData: [
-          { stock: a.stock, price: a.price, rel_likes: a.likes - b.likes },
-          { stock: b.stock, price: b.price, rel_likes: b.likes - a.likes }
-        ]
-      });
-    } else {
-      res.json({ stockData: results[0] });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
+// ✅ Inicio del servidor y ejecución de tests
+const listener = app.listen(process.env.PORT || 3000, function () {
+  console.log('Your app is listening on port ' + listener.address().port);
+  if (process.env.NODE_ENV === 'test') {
+    console.log('Running Tests...');
+    // ⬇ Aumentado a 5000 ms para evitar timeout en test 7
+    setTimeout(function () {
+      try {
+        runner.run();
+      } catch (e) {
+        console.log('Tests are not valid:');
+        console.error(e);
+      }
+    }, 5000);
   }
 });
 
-// ✅ Puerto
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log('Server listening on port ' + PORT);
-});
+module.exports = app;

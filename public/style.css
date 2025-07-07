@@ -1,40 +1,30 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 2rem;
-  background: #f4f4f4;
+  font-family: sans-serif;
+  padding: 2rem;
+  background: #f9f9f9;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
 }
 
-form {
-  max-width: 500px;
-  margin: auto;
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 5px #ccc;
-}
-
-form div {
+form > div {
   margin-bottom: 1rem;
 }
 
-input[type="text"] {
-  width: 100%;
-  padding: 0.5rem;
-}
-
-button {
-  padding: 0.5rem 1rem;
-}
-
-#result {
-  max-width: 500px;
-  margin: 2rem auto;
-  background: #e0e7ff;
+pre {
+  background: #f0f0f0;
   padding: 1rem;
-  white-space: pre-wrap;
-  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow-x: auto;
 }
