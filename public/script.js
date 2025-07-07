@@ -1,22 +1,30 @@
-document.getElementById('testForm2').addEventListener('submit', e => {
-  e.preventDefault();
-  const stock = e.target[0].value;
-  const checkbox = e.target[1].checked;
-  fetch(`/api/stock-prices/?stock=${stock}&like=${checkbox}`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('jsonResult').innerText = JSON.stringify(data);
-    });
-});
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('stockForm');
+  const result = document.getElementById('result');
 
-document.getElementById('testForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const stock1 = e.target[0].value;
-  const stock2 = e.target[1].value;
-  const checkbox = e.target[2].checked;
-  fetch(`/api/stock-prices?stock=${stock1}&stock=${stock2}&like=${checkbox}`)
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('jsonResult').innerText = JSON.stringify(data);
-    });
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const stock1 = document.getElementById('stock1').value.trim();
+    const stock2 = document.getElementById('stock2').value.trim();
+    const like = document.getElementById('like').checked;
+
+    if (!stock1) {
+      result.textContent = 'Please enter at least one stock symbol.';
+      return;
+    }
+
+    let url = `/api/stock-prices?stock=${encodeURIComponent(stock1)}`;
+    if (stock2) url += `&stock=${encodeURIComponent(stock2)}`;
+    if (like) url += `&like=true`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      result.textContent = JSON.stringify(data, null, 2);
+    } catch (err) {
+      result.textContent = 'Error fetching stock data.';
+      console.error(err);
+    }
+  });
 });

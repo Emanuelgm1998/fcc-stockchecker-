@@ -1,28 +1,40 @@
-#userstories {
-  margin-left: 5%;
-  margin-top: 5%;
+body {
+  font-family: Arial, sans-serif;
+  margin: 2rem;
+  background: #f4f4f4;
 }
 
-.p-50 {
-  margin: 50px;
+h1 {
+  text-align: center;
 }
 
-#testui {
-  margin-left: 5%;
+form {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 5px #ccc;
 }
 
-.text-align-left {
-  text-align: left;
+form div {
+  margin-bottom: 1rem;
 }
 
-input[type='text'] {
-  width: 100px;
+input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
 }
 
-.m-50 {
-  margin: 50px;
+button {
+  padding: 0.5rem 1rem;
 }
 
-.mt-200 {
-  margin-top: 200px;
+#result {
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #e0e7ff;
+  padding: 1rem;
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
 }
