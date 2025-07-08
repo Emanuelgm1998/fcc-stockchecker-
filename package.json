@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "NODE_ENV=test mocha --timeout 5000 --ui tdd tests/2_functional-tests.js"
+    "test": "NODE_ENV=test mocha --timeout 5000 --ui bdd tests/2_functional-tests.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
