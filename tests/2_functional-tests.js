@@ -6,7 +6,7 @@ const server = require('../server');
 chai.use(chaiHttp);
 
 describe('Functional Tests', function () {
-  this.timeout(5000); // ⏱️ Aumentar timeout por llamadas externas
+  this.timeout(5000); // Aumenta el timeout a 5s por posibles demoras de red
 
   let likes;
 

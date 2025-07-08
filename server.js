@@ -11,7 +11,7 @@ const runner = require('./test-runner');
 
 const app = express();
 
-// ✅ Seguridad con Helmet + Content Security Policy solo desde el servidor
+// Seguridad con Helmet + CSP básica
 app.use(helmet());
 app.use(
   helmet.contentSecurityPolicy({
@@ -26,43 +26,38 @@ app.use(
   })
 );
 
-// ✅ Archivos estáticos
+// Middleware
 app.use('/public', express.static(process.cwd() + '/public'));
-
-// ✅ CORS para FCC
 app.use(cors({ origin: '*' }));
-
-// ✅ Body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ Ruta principal
-app.route('/').get(function (req, res) {
+// Ruta principal
+app.route('/').get((req, res) => {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
-// ✅ Rutas de test y API
+// Rutas FCC y API
 fccTestingRoutes(app);
 apiRoutes(app);
 
-// ✅ Ruta 404
-app.use(function (req, res, next) {
+// Ruta 404
+app.use((req, res) => {
   res.status(404).type('text').send('Not Found');
 });
 
-// ✅ Iniciar servidor y ejecutar tests si NODE_ENV=test
-const listener = app.listen(process.env.PORT || 3000, function () {
+// Iniciar servidor
+const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port);
   if (process.env.NODE_ENV === 'test') {
     console.log('Running Tests...');
-    setTimeout(function () {
+    setTimeout(() => {
       try {
         runner.run();
       } catch (e) {
-        console.log('Tests are not valid:');
-        console.error(e);
+        console.error('Tests are not valid:', e);
       }
-    }, 3500); // Puedes subir esto a 5000 si los tests fallan por timeout
+    }, 3500);
   }
 });
 
