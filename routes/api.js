@@ -22,18 +22,22 @@ module.exports = function (app) {
             const stockSymbol = symbol.toUpperCase();
             let price;
 
-            // Simula precio fijo en modo test para evitar fallos por red
-            if (process.env.NODE_ENV === 'test') {
-              price = 123.45;
-            } else {
-              const response = await fetch(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stockSymbol}/quote`);
-              const data = await response.json();
+            try {
+              if (process.env.NODE_ENV === 'test') {
+                price = 123.45;
+              } else {
+                const response = await fetch(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stockSymbol}/quote`);
+                const data = await response.json();
 
-              if (!data || !data.symbol || !data.latestPrice) {
-                return null;
+                if (!data || !data.symbol || !data.latestPrice) {
+                  return null;
+                }
+
+                price = data.latestPrice;
               }
-
-              price = data.latestPrice;
+            } catch (fetchError) {
+              console.error(`Fetch failed for ${stockSymbol}:`, fetchError.message);
+              return null;
             }
 
             let doc = await collection.findOne({ stock: stockSymbol });
@@ -61,7 +65,7 @@ module.exports = function (app) {
         );
 
         if (results.includes(null)) {
-          return res.status(400).json({ error: 'Invalid stock symbol' });
+          return res.status(400).json({ error: 'Invalid stock data or symbol (proxy error)' });
         }
 
         if (results.length === 1) {
